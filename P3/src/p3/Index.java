@@ -2,11 +2,18 @@ package p3;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
@@ -50,6 +57,36 @@ public class Index {
             System.out.println("ERROR IN CLOSE INDEX: " + e);
         }
     }
+    
+    public void indexarDocumentos(ArrayList<Json> documentos) throws IOException{
+        for(Json json : documentos){    
+            Document doc = new Document();
+            
+            //Nombre documento
+            doc.add(new StringField("namefile", json.getNameFile(), Field.Store.YES));
+            //Autor e institución
+            for(int j = 0 ; j <  json.getAuthors().size(); j++){
+                doc.add(new TextField("auhtor",json.getAuthors().get(j).getKey(), Field.Store.YES));
+                doc.add(new StringField("institution",json.getAuthors().get(j).getValue(),Field.Store.YES));
+            }
+            //Titulo
+            doc.add(new TextField("title",json.getTitle(),Field.Store.YES));
+            //Tamaño del fichero
+            doc.add(new IntPoint("size",json.getSizeFile()));
+            doc.add(new StoredField("size",json.getSizeFile()));
+            //Descripción
+            doc.add(new TextField("brief", json.getBrief(),Field.Store.YES));
+            //Contenido
+            doc.add(new TextField("text", json.getText(), Field.Store.YES));
+            
+            
+            writer.addDocument(doc);
+            
+        }
+        
+        closeIndex();
+    }
+    
     
     
 }

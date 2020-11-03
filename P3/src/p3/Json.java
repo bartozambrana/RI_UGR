@@ -28,7 +28,7 @@ public class Json {
     // ***** Campos de búsqueda *******
     private Integer sizeFile = null;
     private String title = null;
-    private ArrayList<Pair<String,String>> authors = null;
+    private ArrayList<Pair<String,String>> authors = new ArrayList<>();
     private String institution = null;
     private String brief = null;
     private String text = null;
@@ -39,6 +39,7 @@ public class Json {
         File aux = new File(pathDocumento);
         sizeFile = (int) aux.length()/1024; // Size in KB
         nameFile = aux.getName();
+        brief = "";
         
         file = new FileReader(pathDocumento);
         parser = new JSONParser();
@@ -79,7 +80,6 @@ public class Json {
         }
         //Autores e instituciones
         if(autores.size() > 0){
-            this.authors = new ArrayList<>();
             this.institution = "";
         }
         for(int i = 0; i < autores.size(); i++){
@@ -128,6 +128,10 @@ public class Json {
 
     public String getBrief() {
         return brief;
+    }
+    
+    public String getNameFile(){
+        return nameFile;
     }
     
     
