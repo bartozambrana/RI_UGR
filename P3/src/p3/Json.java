@@ -24,18 +24,21 @@ public class Json {
     private JSONObject jsonObject = null;
     private JSONArray array = null;
     FileReader file = null;
-    private Integer sizeFile = null;
     
     // ***** Campos de búsqueda *******
+    private Integer sizeFile = null;
     private String title = null;
     private ArrayList<Pair<String,String>> authors = null;
     private String institution = null;
     private String brief = null;
+    private String text = null;
+    private String nameFile = null;
 
   
     public Json(String pathDocumento) throws FileNotFoundException, IOException, ParseException{
         File aux = new File(pathDocumento);
         sizeFile = (int) aux.length()/1024; // Size in KB
+        nameFile = aux.getName();
         
         file = new FileReader(pathDocumento);
         parser = new JSONParser();
@@ -56,6 +59,10 @@ public class Json {
         JSONArray resumenes = (JSONArray) this.jsonObject.get("abstract");
         // Obtenemos los autores.
         JSONArray autores = (JSONArray) metadatos.get("authors");
+        
+        // Obtenemos el contenido
+        JSONArray contenido = (JSONArray) this.jsonObject.get("body_text");
+        
         
         
        
@@ -89,6 +96,18 @@ public class Json {
             this.authors.add(nombre_institucion);
         }  
         
+        //Texto
+        if(contenido.size() > 0 )
+            text = "";
+        for(int i = 0; i < contenido.size(); i++){
+            JSONObject aux = (JSONObject) contenido.get(i);
+            String texto = (String) aux.get("text") + "\n";
+            if(texto != null){
+                text += texto;
+            }
+        }
+        
+        
     }
     
     public Integer getSizeFile() {
@@ -111,6 +130,10 @@ public class Json {
         return brief;
     }
     
+    
+    public String getText(){
+        return text;
+    }
     
     
     

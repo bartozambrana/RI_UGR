@@ -6,7 +6,6 @@ import java.util.HashMap;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -30,6 +29,7 @@ public class Index {
         analyzerPerField.put("institution", new LowerCaseAnalyzer()); //Convierte a minúscula
         analyzerPerField.put("title", new LowerCaseAnalyzer());
         analyzerPerField.put("brief", new EnglishAnalyzer());
+        analyzerPerField.put("text", new EnglishAnalyzer());
         
         analyzer = new PerFieldAnalyzerWrapper(new WhitespaceAnalyzer(), analyzerPerField);
         configIndex();

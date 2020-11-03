@@ -27,6 +27,7 @@ public class Principal {
         System.out.println("Instituciones: " + json.getInstitution());
         System.out.println("Resumen: " + json.getBrief());
         System.out.println("Tamaño Fichero KB: " + json.getSizeFile());
+        System.out.println("Texto Fichero: " + json.getText()); 
         
         
     }
