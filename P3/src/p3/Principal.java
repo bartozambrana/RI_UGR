@@ -44,10 +44,10 @@ public class Principal {
         System.out.println("Texto Fichero: " + json.getText()); 
         System.out.println("Nombre Fichero: " + json.getNameFile());*/
         
+        //COMPROBAR ÍNDICES
         File dir = new File("./documentos/document_parses/documents_json/");
         ArrayList<Json> documentosJson = new ArrayList<>();
         for(String fichero: dir.list()){
-            
             documentosJson.add(new Json(dir.getPath() + "/" + fichero));
         }
             

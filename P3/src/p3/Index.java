@@ -26,7 +26,6 @@ public class Index {
     private final String indexPath = "./indices/";
     private HashMap<String, Analyzer> analyzerPerField = new HashMap<String, Analyzer>();
     private PerFieldAnalyzerWrapper analyzer = null;
-    private boolean create = true;
     private IndexWriter writer;
     
     // Constructor del índice
@@ -78,7 +77,6 @@ public class Index {
             doc.add(new TextField("brief", json.getBrief(),Field.Store.YES));
             //Contenido
             doc.add(new TextField("text", json.getText(), Field.Store.YES));
-            
             
             writer.addDocument(doc);
             
