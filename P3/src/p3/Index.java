@@ -65,8 +65,9 @@ public class Index {
             doc.add(new StringField("namefile", json.getNameFile(), Field.Store.YES));
             //Autor e institución
             for(int j = 0 ; j <  json.getAuthors().size(); j++){
-                doc.add(new TextField("auhtor",json.getAuthors().get(j).getKey(), Field.Store.YES));
-                doc.add(new StringField("institution",json.getAuthors().get(j).getValue(),Field.Store.YES));
+               System.out.println(json.getAuthors().get(j).getKey());
+               doc.add(new TextField("author",json.getAuthors().get(j).getKey(), Field.Store.YES));
+               doc.add(new StringField("institution",json.getAuthors().get(j).getValue(),Field.Store.YES));
             }
             //Titulo
             doc.add(new TextField("title",json.getTitle(),Field.Store.YES));
@@ -82,7 +83,7 @@ public class Index {
             
         }
         
-        closeIndex();
+        //closeIndex();
     }
     
     
