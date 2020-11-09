@@ -31,10 +31,10 @@ public class Index {
     // Constructor del índice
     public Index() throws IOException{
         //Analizadores para cada campo
-        analyzerPerField.put("author", new LowerCaseAnalyzer()); //Convierte a minúscula
-        analyzerPerField.put("institution", new LowerCaseAnalyzer()); //Convierte a minúscula
-        analyzerPerField.put("title", new LowerCaseAnalyzer());
-        analyzerPerField.put("brief", new EnglishAnalyzer());
+        analyzerPerField.put("author", new LowerCaseAnalyzer());                            //Convierte a minúscula
+        analyzerPerField.put("institution", new LowerCaseAnalyzer());                       //Convierte a minúscula
+        analyzerPerField.put("title", new LowerCaseAnalyzer());                             //PREGUNTAR SI ESTABLECER ENGLISH ANALYZER
+        analyzerPerField.put("brief", new EnglishAnalyzer()); 
         analyzerPerField.put("text", new EnglishAnalyzer());
         
         analyzer = new PerFieldAnalyzerWrapper(new WhitespaceAnalyzer(), analyzerPerField);
@@ -65,10 +65,10 @@ public class Index {
             doc.add(new StringField("namefile", json.getNameFile(), Field.Store.YES));
             //Autor e institución
             for(int j = 0 ; j <  json.getAuthors().size(); j++){
-               System.out.println(json.getAuthors().get(j).getKey());
                doc.add(new TextField("author",json.getAuthors().get(j).getKey(), Field.Store.YES));
                doc.add(new StringField("institution",json.getAuthors().get(j).getValue(),Field.Store.YES));
             }
+            
             //Titulo
             doc.add(new TextField("title",json.getTitle(),Field.Store.YES));
             //Tamaño del fichero
@@ -83,7 +83,7 @@ public class Index {
             
         }
         
-        //closeIndex();
+        closeIndex();
     }
     
     

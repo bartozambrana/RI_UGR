@@ -10,11 +10,14 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
+import static org.apache.lucene.document.IntPoint.newExactQuery;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
@@ -59,45 +62,83 @@ public class Busqueda {
         analyzers.add( new WhitespaceAnalyzer());
     }
     
-    public ArrayList<Document> search(String consulta, int tipoConsulta, String campo) throws ParseException, IOException{
+    public ArrayList<Document> search(String campo, String consulta) throws ParseException, IOException{
         ArrayList<Document> documentos = new ArrayList<>();
         
         if(campo.equals("title") || campo.equals("author") || campo.equals("institution") ){
             System.out.println("ENTRO A CONSULTAR");
             if(campo.equals("institution"))
-                documentos = consultar(consulta,campo,4,Analizadores.DEFAULT);
+                documentos = consultar(consulta,campo,3,Analizadores.DEFAULT);
             else{
                 System.out.println("ELSE");
-                documentos = consultar(consulta, campo, 3, Analizadores.LOWERCASE);
-                
+                documentos = consultar(consulta, campo, 2, Analizadores.LOWERCASE);
             }
-                
-            
+                    
         }else if(campo.equals("brief") || campo.equals("text")){
-            //EnglishAnalyzer();
-        }else{
-            //WhitespaceAnalyzer
+            documentos = consultar(consulta, campo, 2, Analizadores.ENGLISH);
+        }else if(campo.equals("size")){
+            documentos = consultar(consulta, campo,1,Analizadores.WHITESPACE);
         }
+        
         
         return documentos;
     }
     
+    public ArrayList<Document> booleanSearch(String campo, String consulta, String campo2, String consulta2) throws IOException{
+        ArrayList<Document> documentos;
+        
+        Query q1 = getQuery(campo,consulta);
+        Query q2 = getQuery(campo2,consulta2);
+        
+        BooleanClause bc1 = new BooleanClause(q1,BooleanClause.Occur.MUST);
+        BooleanClause bc2 = new BooleanClause(q2,BooleanClause.Occur.MUST);
+        
+        BooleanQuery.Builder bqbuilder = new BooleanQuery.Builder();
+        bqbuilder.add(bc1);
+        bqbuilder.add(bc2);
+        
+        BooleanQuery bq = bqbuilder.build();
+        
+        documentos = obtenerDocumentos(searcher.search(bq,20));
+        
+        return documentos;
+    }
+    
+    
+    private Query getQuery(String campo, String consulta) throws IOException{
+        Query resultado = null;
+        
+        if(campo.equals("title") || campo.equals("author") || campo.equals("institution") ){
+            
+            if(campo.equals("institution")){
+                Term termino = new Term(campo,consulta);
+                resultado = new TermQuery(termino);
+            }else{
+                resultado = obtenerPhraseQuery(Analizadores.LOWERCASE, consulta, campo);
+            }
+                    
+        }else if(campo.equals("brief") || campo.equals("text")){
+            resultado = obtenerPhraseQuery(Analizadores.ENGLISH, consulta, campo);
+        }else if(campo.equals("size")){
+            resultado = newExactQuery(campo,Integer.parseInt(consulta));
+        }
+        
+        return resultado;
+    }
+    
+    
     private ArrayList<Document> consultar(String consulta, String campo, int tipoConsulta, Analizadores analizador) throws ParseException, IOException{
         TopDocs resultadoConsulta = null;
         switch(tipoConsulta){
-            case 1:     //Búsqueda por rango de valor entero (Siguiente Práctica)
+            case 1:     
+                query = newExactQuery(campo,Integer.parseInt(consulta));
                 break;
                 
-            case 2:     //Búsqueda booleana.
-                break;
-                
-            case 3:     //Búsqueda por texto libre Phrase Query
-                System.out.println("EIIII");
+            case 2:     //Búsqueda por texto libre Phrase Query
                 query = obtenerPhraseQuery(analizador,consulta, campo);
-                System.out.println(query.toString());
                 break;
                 
-            case 4:     //TermQuery
+            case 3:     //TermQuery
                 Term termino = new Term(campo,consulta);
                 query = new TermQuery(termino);
                 break;
@@ -105,11 +146,12 @@ public class Busqueda {
         }
         
         resultadoConsulta = searcher.search(query,20);
-        System.out.println("Tamaño en método consultar: " + resultadoConsulta.totalHits) ;
         ArrayList<Document> documentos = obtenerDocumentos(resultadoConsulta);
         
         return documentos;
     }
+    
+    
     private PhraseQuery obtenerPhraseQuery(Analizadores analizador,String consulta, String campo) throws IOException{
         Analyzer analyzer ;
         PhraseQuery.Builder builder = new PhraseQuery.Builder();
@@ -133,7 +175,9 @@ public class Busqueda {
             String palabra = ""; 
             palabra += stream.getAttribute(CharTermAttribute.class);
             System.out.println(palabra);
+            Term aux = new Term(campo,palabra);
             builder.add(new Term(campo,palabra));
+            System.out.println(" Término añadido: " + aux.toString());
         }
         stream.end();
         stream.close();
