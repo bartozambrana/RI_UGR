@@ -32,6 +32,7 @@ public class Json {
     private String institution = null;
     private String brief = null;
     private String text = null;
+    private ArrayList<String> country = new ArrayList<>();
     private String nameFile = null;
 
   
@@ -78,20 +79,38 @@ public class Json {
             JSONObject  aux = (JSONObject) resumenes.get(i);
             this.brief += aux.get("text") + "\n";
         }
-        //Autores e instituciones
+        //Autores e instituciones y país
         if(autores.size() > 0){
             this.institution = "";
         }
         for(int i = 0; i < autores.size(); i++){
             JSONObject  aux = (JSONObject) autores.get(i);
             JSONObject aux2 = (JSONObject) aux.get("affiliation");
+            JSONObject aux3 = (JSONObject) aux2.get("location");
             
             String autor = aux.get("first") + " " + aux.get("last");
             String institucion = (String) aux2.get("institution");
-            if(institucion == null)
-                institucion = "";
-            Pair <String,String> nombre_institucion = new Pair(autor,institucion);
             
+            if(institucion == null)
+                institucion = "desconocida";
+            if(institucion.equals(""))
+                institucion = "desconocida";
+            
+            Pair <String,String> nombre_institucion = new Pair(autor,institucion);
+            //No siempre contiene el campo localización en el apartado de afiliación.
+            if(aux3 != null){
+                String pais = (String) aux3.get("country");
+                if(pais == null)
+                    pais = "Desconocido";
+                if(pais.equals(""))
+                    pais = "Desconocido";
+                //Comprobamos si el país se encuentra ya almacenado.
+                int posicion = this.country.indexOf(pais);
+                //En el caso de que no se encuentre lo almacenamos
+                if(posicion == -1)
+                    this.country.add(pais);            
+            }
+                        
             this.institution += institucion + " | ";
             this.authors.add(nombre_institucion);
         }  
@@ -137,6 +156,10 @@ public class Json {
     
     public String getText(){
         return text;
+    }
+    
+    public ArrayList<String> getCountry(){
+        return country;
     }
     
     

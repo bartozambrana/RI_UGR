@@ -33,7 +33,7 @@ public class Index {
         //Analizadores para cada campo
         analyzerPerField.put("author", new LowerCaseAnalyzer());                            //Convierte a minúscula
         analyzerPerField.put("institution", new LowerCaseAnalyzer());                       //Convierte a minúscula
-        analyzerPerField.put("title", new LowerCaseAnalyzer());                             //PREGUNTAR SI ESTABLECER ENGLISH ANALYZER
+        analyzerPerField.put("title", new EnglishAnalyzer());                             //PREGUNTAR SI ESTABLECER ENGLISH ANALYZER
         analyzerPerField.put("brief", new EnglishAnalyzer()); 
         analyzerPerField.put("text", new EnglishAnalyzer());
         
@@ -65,9 +65,15 @@ public class Index {
             doc.add(new StringField("namefile", json.getNameFile(), Field.Store.YES));
             //Autor e institución
             for(int j = 0 ; j <  json.getAuthors().size(); j++){
-               doc.add(new TextField("author",json.getAuthors().get(j).getKey(), Field.Store.YES));
-               doc.add(new StringField("institution",json.getAuthors().get(j).getValue(),Field.Store.YES));
+               doc.add(new TextField("author",json.getAuthors().get(j).getKey(), Field.Store.YES));               
+               doc.add(new TextField("institution",json.getAuthors().get(j).getValue(),Field.Store.YES));
+               
             }
+            
+            //Paises
+            for(int i = 0; i < json.getCountry().size(); i++)
+                doc.add(new StringField("country",json.getCountry().get(i), Field.Store.YES));
+            
             
             //Titulo
             doc.add(new TextField("title",json.getTitle(),Field.Store.YES));
@@ -77,7 +83,7 @@ public class Index {
             //Descripción
             doc.add(new TextField("brief", json.getBrief(),Field.Store.YES));
             //Contenido
-            doc.add(new TextField("text", json.getText(), Field.Store.YES));
+            doc.add(new TextField("text", json.getText(), Field.Store.NO));
             
             writer.addDocument(doc);
             

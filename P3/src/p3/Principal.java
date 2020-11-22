@@ -31,8 +31,8 @@ public class Principal {
         
         
         Busqueda busqueda = new Busqueda();
-        //ArrayList<Document> documentos = busqueda.search("size","66");
-        ArrayList<Document> documentos = busqueda.booleanSearch("text","virus","title","coronavirus");
+        ArrayList<Document> documentos = busqueda.search("country","España");
+        //ArrayList<Document> documentos = busqueda.booleanSearch("text","virus","title","coronavirus");
         System.out.println(documentos.size());
         for(int i = 0; i < documentos.size(); i++){
             System.out.println(documentos.get(i).get("namefile") + " - Tamaño : " + documentos.get(i).get("size"));

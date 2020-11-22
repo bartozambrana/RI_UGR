@@ -37,7 +37,7 @@ public class Busqueda {
     private IndexSearcher searcher;
     private QueryParser parser;
     private Query query;
-    private ArrayList<Analyzer> analyzers;
+    //private ArrayList<Analyzer> analyzers;
     private IndexReader reader;
     
     
@@ -56,25 +56,24 @@ public class Busqueda {
             System.exit(-1);
         }
         // Analizadores utilizados para los campos
-        analyzers = new ArrayList<>();
+        /*analyzers = new ArrayList<>();
         analyzers.add(new LowerCaseAnalyzer());
         analyzers.add(new EnglishAnalyzer());
-        analyzers.add( new WhitespaceAnalyzer());
+        analyzers.add( new WhitespaceAnalyzer());*/
     }
     
     public ArrayList<Document> search(String campo, String consulta) throws ParseException, IOException{
         ArrayList<Document> documentos = new ArrayList<>();
         
-        if(campo.equals("title") || campo.equals("author") || campo.equals("institution") ){
-            System.out.println("ENTRO A CONSULTAR");
-            if(campo.equals("institution"))
+        if(campo.equals("author") || campo.equals("institution") || campo.equals("country")){
+            
+            if(campo.equals("country"))
                 documentos = consultar(consulta,campo,3,Analizadores.DEFAULT);
             else{
-                System.out.println("ELSE");
                 documentos = consultar(consulta, campo, 2, Analizadores.LOWERCASE);
             }
                     
-        }else if(campo.equals("brief") || campo.equals("text")){
+        }else if(campo.equals("title") || campo.equals("brief") || campo.equals("text")){
             documentos = consultar(consulta, campo, 2, Analizadores.ENGLISH);
         }else if(campo.equals("size")){
             documentos = consultar(consulta, campo,1,Analizadores.WHITESPACE);
@@ -108,16 +107,16 @@ public class Busqueda {
     private Query getQuery(String campo, String consulta) throws IOException{
         Query resultado = null;
         
-        if(campo.equals("title") || campo.equals("author") || campo.equals("institution") ){
+        if(campo.equals("author") || campo.equals("institution") || campo.equals("country")){
             
-            if(campo.equals("institution")){
+            if(campo.equals("country")){
                 Term termino = new Term(campo,consulta);
                 resultado = new TermQuery(termino);
             }else{
                 resultado = obtenerPhraseQuery(Analizadores.LOWERCASE, consulta, campo);
             }
                     
-        }else if(campo.equals("brief") || campo.equals("text")){
+        }else if(campo.equals("brief") || campo.equals("text") || campo.equals("title")){
             resultado = obtenerPhraseQuery(Analizadores.ENGLISH, consulta, campo);
         }else if(campo.equals("size")){
             resultado = newExactQuery(campo,Integer.parseInt(consulta));
@@ -158,7 +157,7 @@ public class Busqueda {
         switch(analizador){
             case LOWERCASE: 
                 analyzer = new LowerCaseAnalyzer();
-                System.out.println("lowercaseanalyzer");
+                //System.out.println("lowercaseanalyzer");
                 break;
             case ENGLISH:
                 analyzer = new EnglishAnalyzer();
@@ -174,10 +173,10 @@ public class Busqueda {
         while(stream.incrementToken()){
             String palabra = ""; 
             palabra += stream.getAttribute(CharTermAttribute.class);
-            System.out.println(palabra);
+            //System.out.println(palabra);
             Term aux = new Term(campo,palabra);
             builder.add(new Term(campo,palabra));
-            System.out.println(" Término añadido: " + aux.toString());
+            //System.out.println(" Término añadido: " + aux.toString());
         }
         stream.end();
         stream.close();
