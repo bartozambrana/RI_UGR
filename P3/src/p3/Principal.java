@@ -19,17 +19,6 @@ public class Principal {
     public static void main(String[] args) throws IOException, FileNotFoundException, ParseException, org.apache.lucene.queryparser.classic.ParseException {
         
         
-        //COMPROBAR ÍNDICES
-        File dir = new File("./documentos/document_parses/documents_json/");
-        ArrayList<Json> documentosJson = new ArrayList<>();
-        for(String fichero: dir.list()){
-            documentosJson.add(new Json(dir.getPath() + "/" + fichero));
-            
-        }
-        Index indice = new Index();
-        indice.indexarDocumentos(documentosJson);
-        
-        
         Busqueda busqueda = new Busqueda();
         ArrayList<Document> documentos = busqueda.search("country","España");
         //ArrayList<Document> documentos = busqueda.booleanSearch("text","virus","title","coronavirus");
