@@ -4,6 +4,7 @@ package p3;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
@@ -11,6 +12,14 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import static org.apache.lucene.document.IntPoint.newExactQuery;
+import org.apache.lucene.document.LongRange;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
+import org.apache.lucene.facet.FacetsCollector;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
+import org.apache.lucene.facet.taxonomy.TaxonomyReader;
+import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -34,32 +43,42 @@ public class Busqueda {
     
     //Variables
     private final String indexPath;
+    private final String facetPath;
     private IndexSearcher searcher;
     private QueryParser parser;
     private Query query;
     //private ArrayList<Analyzer> analyzers;
     private IndexReader reader;
+    private TaxonomyReader taxoReader;
+    private FacetsCollector  facets;
+    private FacetsConfig fconfig;
+    private final Integer NDOCS = 20;
     
     
     
     public Busqueda() throws IOException {
         this.indexPath = "./indices/";
+        this.facetPath = "./facetas/";
+        
         
         try {
-            
+            //Obtenemos directorios
             Directory dir = FSDirectory.open(Paths.get(indexPath));
+            Directory taxoDir = FSDirectory.open(Paths.get(facetPath));
+            //Abrimos directorios
             reader = DirectoryReader.open(dir);
+            taxoReader = new DirectoryTaxonomyReader(taxoDir);
+            //Establecemos los buscadores
             searcher = new IndexSearcher(reader);
-            
+            facets = new FacetsCollector();
+            //Configuramos el índice
+            fconfig = new FacetsConfig();
+            fconfig.setMultiValued("institution", true);
         } catch (IOException e) {
             System.err.println("Error Al obtener el Documento Asociado a Índice: " + e);
             System.exit(-1);
         }
-        // Analizadores utilizados para los campos
-        /*analyzers = new ArrayList<>();
-        analyzers.add(new LowerCaseAnalyzer());
-        analyzers.add(new EnglishAnalyzer());
-        analyzers.add( new WhitespaceAnalyzer());*/
+        
     }
     
     public ArrayList<Document> search(String campo, String consulta) throws ParseException, IOException{
@@ -83,8 +102,18 @@ public class Busqueda {
         return documentos;
     }
     
+    public List<FacetResult> obtenerFacetas() throws IOException{
+        List<FacetResult> resultado;
+              
+        Facets facetas = new FastTaxonomyFacetCounts(taxoReader,fconfig,facets);
+        resultado = facetas.getAllDims(20);
+        
+        return resultado;
+    }
+    
     public ArrayList<Document> booleanSearch(String campo, String consulta, String campo2, String consulta2) throws IOException{
         ArrayList<Document> documentos;
+        TopDocs resultadoConsulta;
         
         Query q1 = getQuery(campo,consulta);
         Query q2 = getQuery(campo2,consulta2);
@@ -98,7 +127,8 @@ public class Busqueda {
         
         BooleanQuery bq = bqbuilder.build();
         
-        documentos = obtenerDocumentos(searcher.search(bq,20));
+        resultadoConsulta = FacetsCollector.search(searcher, bq,NDOCS, facets);
+        documentos = obtenerDocumentos(resultadoConsulta);
         
         return documentos;
     }
@@ -144,7 +174,8 @@ public class Busqueda {
                        
         }
         
-        resultadoConsulta = searcher.search(query,20);
+        //resultadoConsulta = searcher.search(query,20);
+        resultadoConsulta = FacetsCollector.search(searcher, query, NDOCS, facets);
         ArrayList<Document> documentos = obtenerDocumentos(resultadoConsulta);
         
         return documentos;
@@ -200,6 +231,7 @@ public class Busqueda {
     public void cerrarIndex(){
         try{
                 reader.close();
+                taxoReader.close();
             }catch(IOException e2){
                System.err.println("Error Al cerrar el Documento Asociado a Índice: " + e2);
                System.exit(-2); 

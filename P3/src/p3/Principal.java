@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.LabelAndValue;
 import org.json.simple.parser.ParseException;
 
 /**
@@ -20,13 +23,22 @@ public class Principal {
         
         
         Busqueda busqueda = new Busqueda();
-        ArrayList<Document> documentos = busqueda.search("country","España");
+        ArrayList<Document> documentos = busqueda.search("country","China"); 
         //ArrayList<Document> documentos = busqueda.booleanSearch("text","virus","title","coronavirus");
         System.out.println(documentos.size());
         for(int i = 0; i < documentos.size(); i++){
-            System.out.println(documentos.get(i).get("namefile") + " - Tamaño : " + documentos.get(i).get("size"));
+            System.out.println(documentos.get(i).get("namefile") + " - Tamaño : " + documentos.get(i).get("size") + "-  Institución: " + documentos.get(i).get("Institution"));
+            
         }
         
+        List<FacetResult> resultado = busqueda.obtenerFacetas();
+        System.out.println("Categorías totales " + resultado.size());
+        for(FacetResult fr: resultado){
+                System.out.println("Categoría " + fr.dim);
+                for(LabelAndValue lv: fr.labelValues){
+                    System.out.println("\t Etiq: " + lv.label + ", valor(#n)-> "+ lv.value);
+                }
+        }
         busqueda.cerrarIndex();
         
     }

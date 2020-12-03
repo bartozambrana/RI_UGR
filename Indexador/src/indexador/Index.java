@@ -52,7 +52,7 @@ public class Index {
     private void configurarIndice() throws IOException{
         FSDirectory dir = FSDirectory.open(Paths.get(indexPath));
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
-        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         writer = new IndexWriter(dir,config);
     }
     
@@ -103,7 +103,7 @@ public class Index {
             doc.add(new IntPoint("size",json.getSizeFile()));
             doc.add(new StoredField("size",json.getSizeFile()));
             //Faceta tamaño
-            doc.add(new FacetField("institution",json.getSizeFile().toString()));
+            doc.add(new FacetField("size",json.getSizeFile().toString()));
             //Descripción
             doc.add(new TextField("brief", json.getBrief(),Field.Store.YES));
             //Contenido

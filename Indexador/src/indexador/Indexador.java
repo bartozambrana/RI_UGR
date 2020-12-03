@@ -30,6 +30,7 @@ public class Indexador {
         Index indice = new Index();
         indice.indexarDocumentos(documentosJson);
         
+        
     }
     
 }
