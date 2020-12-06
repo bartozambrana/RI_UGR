@@ -23,22 +23,23 @@ public class Principal {
         
         
         Busqueda busqueda = new Busqueda();
-        ArrayList<Document> documentos = busqueda.search("country","China"); 
+        ArrayList<Document> documento = busqueda.search("country","China"); 
         //ArrayList<Document> documentos = busqueda.booleanSearch("text","virus","title","coronavirus");
-        System.out.println(documentos.size());
-        for(int i = 0; i < documentos.size(); i++){
-            System.out.println(documentos.get(i).get("namefile") + " - Tamaño : " + documentos.get(i).get("size") + "-  Institución: " + documentos.get(i).get("Institution"));
+        //System.out.println(documentos.size());
+        for(int i = 0; i < documento.size(); i++){
+            System.out.println(documento.get(i).get("namefile") + " - Tamaño : " + documento.get(i).get("size") + "-  Institución: " + documento.get(i).get("institution"));
             
         }
         
-        List<FacetResult> resultado = busqueda.obtenerFacetas();
-        System.out.println("Categorías totales " + resultado.size());
-        for(FacetResult fr: resultado){
-                System.out.println("Categoría " + fr.dim);
-                for(LabelAndValue lv: fr.labelValues){
-                    System.out.println("\t Etiq: " + lv.label + ", valor(#n)-> "+ lv.value);
-                }
-        }
+        
+        //List<FacetResult> resultado = busqueda.obtenerFacetas();
+        //System.out.println("Categorías totales " + resultado.size());
+        //for(FacetResult fr: resultado){
+        //        System.out.println("Categoría " + fr.dim);
+        //        for(LabelAndValue lv: fr.labelValues){
+        //            System.out.println("\t Etiq: " + lv.label + ", valor(#n)-> "+ lv.value);
+        //        }
+        //}
         busqueda.cerrarIndex();
         
     }

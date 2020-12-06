@@ -103,6 +103,7 @@ public class Index {
             doc.add(new IntPoint("size",json.getSizeFile()));
             doc.add(new StoredField("size",json.getSizeFile()));
             //Faceta tamaño
+            FacetField faceta = new FacetField("size",json.getSizeFile().toString());
             doc.add(new FacetField("size",json.getSizeFile().toString()));
             //Descripción
             doc.add(new TextField("brief", json.getBrief(),Field.Store.YES));

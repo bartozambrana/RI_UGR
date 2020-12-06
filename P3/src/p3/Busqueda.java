@@ -12,11 +12,15 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import static org.apache.lucene.document.IntPoint.newExactQuery;
-import org.apache.lucene.document.LongRange;
+import org.apache.lucene.facet.DrillDownQuery;
+import org.apache.lucene.facet.DrillSideways;
+import org.apache.lucene.facet.DrillSideways.DrillSidewaysResult;
+import org.apache.lucene.facet.range.LongRange;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.range.LongRangeFacetCounts;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
@@ -31,8 +35,13 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopFieldCollector;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -53,6 +62,8 @@ public class Busqueda {
     private FacetsCollector  facets;
     private FacetsConfig fconfig;
     private final Integer NDOCS = 20;
+    private TopFieldCollector collector;
+    private Sort orden;
     
     
     
@@ -74,6 +85,12 @@ public class Busqueda {
             //Configuramos el índice
             fconfig = new FacetsConfig();
             fconfig.setMultiValued("institution", true);
+            
+            //Configuración orden
+            SortField sf = new SortField("size",SortField.Type.INT, true);
+            sf.setMissingValue(0);
+            orden = new Sort(sf);
+            collector = TopFieldCollector.create(orden,20,0);
         } catch (IOException e) {
             System.err.println("Error Al obtener el Documento Asociado a Índice: " + e);
             System.exit(-1);
@@ -102,14 +119,7 @@ public class Busqueda {
         return documentos;
     }
     
-    public List<FacetResult> obtenerFacetas() throws IOException{
-        List<FacetResult> resultado;
-              
-        Facets facetas = new FastTaxonomyFacetCounts(taxoReader,fconfig,facets);
-        resultado = facetas.getAllDims(20);
-        
-        return resultado;
-    }
+    
     
     public ArrayList<Document> booleanSearch(String campo, String consulta, String campo2, String consulta2) throws IOException{
         ArrayList<Document> documentos;
@@ -127,8 +137,12 @@ public class Busqueda {
         
         BooleanQuery bq = bqbuilder.build();
         
-        resultadoConsulta = FacetsCollector.search(searcher, bq,NDOCS, facets);
-        documentos = obtenerDocumentos(resultadoConsulta);
+        //Almacenamos el valor en query para el drilldown
+        query = bq;
+        
+        FacetsCollector.search(searcher, bq,NDOCS, facets);
+        searcher.search(query, collector);
+        documentos = obtenerDocumentos(collector.topDocs());
         
         return documentos;
     }
@@ -157,7 +171,6 @@ public class Busqueda {
     
     
     private ArrayList<Document> consultar(String consulta, String campo, int tipoConsulta, Analizadores analizador) throws ParseException, IOException{
-        TopDocs resultadoConsulta = null;
         switch(tipoConsulta){
             case 1:     
                 query = newExactQuery(campo,Integer.parseInt(consulta));
@@ -175,8 +188,9 @@ public class Busqueda {
         }
         
         //resultadoConsulta = searcher.search(query,20);
-        resultadoConsulta = FacetsCollector.search(searcher, query, NDOCS, facets);
-        ArrayList<Document> documentos = obtenerDocumentos(resultadoConsulta);
+        FacetsCollector.search(searcher, query, NDOCS, facets);
+        searcher.search(query, collector);
+        ArrayList<Document> documentos = obtenerDocumentos(collector.topDocs());
         
         return documentos;
     }
@@ -228,14 +242,56 @@ public class Busqueda {
         return documentos;
     }
     
+   
+    
+    public List<FacetResult> obtenerFacetas() throws IOException{
+        List<FacetResult> resultado;
+              
+        Facets facetas = new FastTaxonomyFacetCounts(taxoReader,fconfig,facets);
+        resultado = facetas.getAllDims(20);
+        
+        return resultado;
+    }
+    
+    public List<FacetResult> obtenerFacetasRango() throws IOException{
+        
+        List<FacetResult> resultado;
+        LongRange[] ranges = new LongRange[4];
+        ranges[0] = new LongRange("1-40",1L, true, 40L, true);
+        ranges[1] = new LongRange("41-80",41L, true, 80L, true);
+        ranges[2] = new LongRange("81-150",81L, true, 150L, true);
+        ranges[3] = new LongRange("151-300",151L, true, 300L, true);
+        
+        LongRangeFacetCounts facetas = new LongRangeFacetCounts("size",facets,ranges);
+        
+        resultado = facetas.getAllDims(20);
+        return resultado;
+    }
+    
+    
+    public ArrayList<Document> buscarPorFaceta(String facetaElegida, String valorFaceta) throws IOException{
+        ArrayList<Document> resultado;
+        List<FacetResult> allDim;
+        DrillDownQuery ddq = new DrillDownQuery(fconfig,query);
+        
+        ddq.add(facetaElegida,valorFaceta);
+        
+        DrillSideways ds = new DrillSideways(searcher,fconfig,taxoReader);
+        DrillSidewaysResult dsresult = ds.search(ddq, 20);
+        
+        resultado = this.obtenerDocumentos(dsresult.hits);
+        
+        return resultado;
+           
+    }
     public void cerrarIndex(){
         try{
-                reader.close();
-                taxoReader.close();
-            }catch(IOException e2){
-               System.err.println("Error Al cerrar el Documento Asociado a Índice: " + e2);
-               System.exit(-2); 
-            }
+            reader.close();
+            taxoReader.close();
+        }catch(IOException e2){
+            System.err.println("Error Al cerrar el Documento Asociado a Índice: " + e2);
+            System.exit(-2); 
+        }
     }
     
     
