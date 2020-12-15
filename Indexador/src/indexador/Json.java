@@ -88,7 +88,12 @@ public class Json {
             JSONObject aux2 = (JSONObject) aux.get("affiliation");
             JSONObject aux3 = (JSONObject) aux2.get("location");
             
-            String autor = aux.get("first") + " " + aux.get("last");
+            String autor = "";
+            if(aux != null)
+                autor = aux.get("first") + " " + aux.get("last");
+            else
+                autor = "desconocido";
+            
             String institucion = (String) aux2.get("institution");
             
             if(institucion == null)

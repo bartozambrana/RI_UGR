@@ -11,6 +11,7 @@ import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -102,8 +103,14 @@ public class Index {
             //Tamaño del fichero
             doc.add(new IntPoint("size",json.getSizeFile()));
             doc.add(new StoredField("size",json.getSizeFile()));
-            //Faceta tamaño
+            //Lo instroducimos también como string para poder ser utilizado en las facetas
+            
+            //Faceta tamaño por rango:
+            
+            long size = json.getSizeFile();
+            doc.add(new NumericDocValuesField("size",size));
             FacetField faceta = new FacetField("size",json.getSizeFile().toString());
+            
             doc.add(new FacetField("size",json.getSizeFile().toString()));
             //Descripción
             doc.add(new TextField("brief", json.getBrief(),Field.Store.YES));

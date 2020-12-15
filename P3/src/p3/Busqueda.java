@@ -86,17 +86,22 @@ public class Busqueda {
             fconfig = new FacetsConfig();
             fconfig.setMultiValued("institution", true);
             
-            //Configuración orden
-            SortField sf = new SortField("size",SortField.Type.INT, true);
-            sf.setMissingValue(0);
-            orden = new Sort(sf);
-            collector = TopFieldCollector.create(orden,20,0);
+            
         } catch (IOException e) {
             System.err.println("Error Al obtener el Documento Asociado a Índice: " + e);
             System.exit(-1);
         }
         
     }
+    
+    private void configurarTopFieldFacetCollector(){
+        //Configuración orden
+        SortField sf = new SortField("size",SortField.Type.INT, true);
+        sf.setMissingValue(0);
+        orden = new Sort(sf);
+        collector = TopFieldCollector.create(orden,20,0);
+    }
+    
     
     public ArrayList<Document> search(String campo, String consulta) throws ParseException, IOException{
         ArrayList<Document> documentos = new ArrayList<>();
@@ -120,11 +125,14 @@ public class Busqueda {
     }
     
     
-    
+   
     public ArrayList<Document> booleanSearch(String campo, String consulta, String campo2, String consulta2) throws IOException{
         ArrayList<Document> documentos;
-        TopDocs resultadoConsulta;
         
+        TopDocs resultadoConsulta;
+        configurarTopFieldFacetCollector();
+            
+            
         Query q1 = getQuery(campo,consulta);
         Query q2 = getQuery(campo2,consulta2);
         
@@ -187,8 +195,10 @@ public class Busqueda {
                        
         }
         
+        configurarTopFieldFacetCollector();
         //resultadoConsulta = searcher.search(query,20);
         FacetsCollector.search(searcher, query, NDOCS, facets);
+        System.out.println("Consulta: " + query);
         searcher.search(query, collector);
         ArrayList<Document> documentos = obtenerDocumentos(collector.topDocs());
         
@@ -242,9 +252,25 @@ public class Busqueda {
         return documentos;
     }
     
+    private ArrayList<Document> obtenerNDocumentos(TopDocs resultadoConsulta, int n) throws IOException{
+        
+        
+        ArrayList<Document> documentos = new ArrayList<>();
+        ScoreDoc[] hits = resultadoConsulta.scoreDocs;
+        
+        if( n > hits.length )
+            n = hits.length;
+        
+        for(int i = 0; i < n; i++){
+            documentos.add(searcher.doc(hits[i].doc));
+        }
+        
+        return documentos;
+    }
+    
    
     
-    public List<FacetResult> obtenerFacetas() throws IOException{
+    public List<FacetResult> obtenerTodasFacetas() throws IOException{
         List<FacetResult> resultado;
               
         Facets facetas = new FastTaxonomyFacetCounts(taxoReader,fconfig,facets);
@@ -253,7 +279,16 @@ public class Busqueda {
         return resultado;
     }
     
-    public List<FacetResult> obtenerFacetasRango() throws IOException{
+    public FacetResult obtenerFacetaInstitucion() throws IOException{
+        FacetResult resultado;
+              
+        Facets facetas = new FastTaxonomyFacetCounts(taxoReader,fconfig,facets);
+        resultado = facetas.getTopChildren(20, "institution");
+        
+        return resultado;
+    }
+    
+    public List<FacetResult> obtenerFacetaSizeRango() throws IOException{
         
         List<FacetResult> resultado;
         LongRange[] ranges = new LongRange[4];
@@ -275,9 +310,10 @@ public class Busqueda {
         DrillDownQuery ddq = new DrillDownQuery(fconfig,query);
         
         ddq.add(facetaElegida,valorFaceta);
-        
+        //this.configurarTopFieldFacetCollector();
         DrillSideways ds = new DrillSideways(searcher,fconfig,taxoReader);
-        DrillSidewaysResult dsresult = ds.search(ddq, 20);
+        //DrillSidewaysResult dsresult = ds.search(ddq, collector);
+        DrillSidewaysResult dsresult = ds.search(ddq,20);
         
         resultado = this.obtenerDocumentos(dsresult.hits);
         
