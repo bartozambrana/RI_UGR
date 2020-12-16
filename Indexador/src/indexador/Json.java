@@ -33,6 +33,7 @@ public class Json {
     private String brief = null;
     private String text = null;
     private ArrayList<String> country = new ArrayList<>();
+    private String countries;
     private String nameFile = null;
 
   
@@ -83,6 +84,7 @@ public class Json {
         if(autores.size() > 0){
             this.institution = "";
         }
+        countries = "";
         for(int i = 0; i < autores.size(); i++){
             JSONObject  aux = (JSONObject) autores.get(i);
             JSONObject aux2 = (JSONObject) aux.get("affiliation");
@@ -106,14 +108,15 @@ public class Json {
             if(aux3 != null){
                 String pais = (String) aux3.get("country");
                 if(pais == null)
-                    pais = "Desconocido";
-                if(pais.equals(""))
-                    pais = "Desconocido";
+                    pais = "desconocido";
                 //Comprobamos si el país se encuentra ya almacenado.
                 int posicion = this.country.indexOf(pais);
                 //En el caso de que no se encuentre lo almacenamos
-                if(posicion == -1)
-                    this.country.add(pais);            
+                if(posicion == -1){
+                    this.country.add(pais);
+                    countries += (" " + pais );
+                }
+                                
             }
                         
             this.institution += institucion + " | ";
@@ -165,6 +168,10 @@ public class Json {
     
     public ArrayList<String> getCountry(){
         return country;
+    }
+    
+    public String getCountries(){
+        return countries;
     }
     
     

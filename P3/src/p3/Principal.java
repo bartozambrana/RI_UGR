@@ -34,7 +34,7 @@ public class Principal {
         }
         
         
-        /*List<FacetResult> resultado = busqueda.obtenerFacetaSizeRango();
+        List<FacetResult> resultado = busqueda.obtenerFacetaSizeRango();
         System.out.println("Categorías totales " + resultado.size());
         for(FacetResult fr: resultado){
                 System.out.println("Categoría " + fr.dim);
@@ -43,18 +43,18 @@ public class Principal {
                 }
         }
         
-        System.out.println("INSTITUCIONES");
+        /*System.out.println("INSTITUCIONES");
         FacetResult resultadoInsti = busqueda.obtenerFacetaInstitucion();
         
         for(LabelAndValue lv: resultadoInsti.labelValues){
             System.out.println("\t Etiq: " + lv.label + ", valor(#n)-> "+ lv.value);
-        }*/
+        }
         System.out.println("_______________________________________________________________________________________--");
         ArrayList<Document> documentos = busqueda.buscarPorFaceta("institution", "desconocida");
         for(int i = 0; i < documentos.size(); i++){
             System.out.println(documentos.get(i).get("namefile") + " - Tamaño : " + documentos.get(i).get("size") + "-  Institución: " + documentos.get(i).get("institution"));
             
-        }
+        }*/
         busqueda.cerrarIndex();
         
     }

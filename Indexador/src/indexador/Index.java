@@ -5,9 +5,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
@@ -40,7 +42,8 @@ public class Index {
     public Index() throws IOException{
         //Analizadores para cada campo
         analyzerPerField.put("author", new LowerCaseAnalyzer());                            //Convierte a minúscula
-        analyzerPerField.put("institution", new LowerCaseAnalyzer());                       //Convierte a minúscula
+        analyzerPerField.put("institution", new LowerCaseAnalyzer());//Convierte a minúscula
+        analyzerPerField.put("country", new LowerCaseAnalyzer());
         analyzerPerField.put("title", new EnglishAnalyzer());                             
         analyzerPerField.put("brief", new EnglishAnalyzer()); 
         analyzerPerField.put("text", new EnglishAnalyzer());
@@ -76,6 +79,25 @@ public class Index {
         }
     }
     
+    private ArrayList<String> aplicarAnalizadorStringField(String contenido, Analyzer analizador) throws IOException{
+        ArrayList<String> paises = new ArrayList<>();
+        
+            
+        TokenStream stream = analizador.tokenStream(null, contenido);
+        stream.reset();
+        while(stream.incrementToken()){
+            String palabra = "";
+            palabra += stream.getAttribute(CharTermAttribute.class);
+            paises.add(palabra);
+        }
+        stream.end();
+        stream.close();
+
+        return paises;
+            
+        
+    }
+    
     public void indexarDocumentos(ArrayList<Json> documentos) throws IOException{
         for(Json json : documentos){    
             Document doc = new Document();
@@ -94,9 +116,13 @@ public class Index {
                
             }
             
+            ArrayList<String> paises = this.aplicarAnalizadorStringField(json.getCountries(), new LowerCaseAnalyzer());
             //Paises
-            for(int i = 0; i < json.getCountry().size(); i++)
-                doc.add(new StringField("country",json.getCountry().get(i), Field.Store.YES));
+            for(int i = 0; i < paises.size(); i++){
+                doc.add(new StringField("country",paises.get(i), Field.Store.YES));
+                
+            }
+                
             
             //Titulo
             doc.add(new TextField("title",json.getTitle(),Field.Store.YES));

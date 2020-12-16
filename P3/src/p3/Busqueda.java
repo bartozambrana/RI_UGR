@@ -102,6 +102,23 @@ public class Busqueda {
         collector = TopFieldCollector.create(orden,20,0);
     }
     
+     private ArrayList<String> aplicarAnalizadorStringField(String contenido, Analyzer analizador) throws IOException{
+        ArrayList<String> paises = new ArrayList<>();      
+            
+        TokenStream stream = analizador.tokenStream(null, contenido);
+        stream.reset();
+        while(stream.incrementToken()){
+            String palabra = "";
+            palabra += stream.getAttribute(CharTermAttribute.class);
+            paises.add(palabra);
+        }
+        stream.end();
+        stream.close();
+
+        return paises;
+         
+    }
+    
     
     public ArrayList<Document> search(String campo, String consulta) throws ParseException, IOException{
         ArrayList<Document> documentos = new ArrayList<>();
@@ -162,7 +179,7 @@ public class Busqueda {
         if(campo.equals("author") || campo.equals("institution") || campo.equals("country")){
             
             if(campo.equals("country")){
-                Term termino = new Term(campo,consulta);
+                Term termino = new Term(campo, aplicarAnalizadorStringField(consulta,new LowerCaseAnalyzer()).get(0));
                 resultado = new TermQuery(termino);
             }else{
                 resultado = obtenerPhraseQuery(Analizadores.LOWERCASE, consulta, campo);
@@ -178,6 +195,8 @@ public class Busqueda {
     }
     
     
+    
+    
     private ArrayList<Document> consultar(String consulta, String campo, int tipoConsulta, Analizadores analizador) throws ParseException, IOException{
         switch(tipoConsulta){
             case 1:     
@@ -189,7 +208,7 @@ public class Busqueda {
                 break;
                 
             case 3:     //TermQuery
-                Term termino = new Term(campo,consulta);
+                Term termino = new Term(campo, aplicarAnalizadorStringField(consulta,new LowerCaseAnalyzer()).get(0));
                 query = new TermQuery(termino);
                 break;
                        
@@ -292,10 +311,10 @@ public class Busqueda {
         
         List<FacetResult> resultado;
         LongRange[] ranges = new LongRange[4];
-        ranges[0] = new LongRange("1-40",1L, true, 40L, true);
-        ranges[1] = new LongRange("41-80",41L, true, 80L, true);
-        ranges[2] = new LongRange("81-150",81L, true, 150L, true);
-        ranges[3] = new LongRange("151-300",151L, true, 300L, true);
+        ranges[0] = new LongRange("[1-40]  ",1L, true, 40L, true);
+        ranges[1] = new LongRange("[41-80] ",41L, true, 80L, true);
+        ranges[2] = new LongRange("[81-150]  ",81L, true, 150L, true);
+        ranges[3] = new LongRange("[151-50000] ",151L, true, 50000L, true);
         
         LongRangeFacetCounts facetas = new LongRangeFacetCounts("size",facets,ranges);
         
@@ -310,13 +329,12 @@ public class Busqueda {
         DrillDownQuery ddq = new DrillDownQuery(fconfig,query);
         
         ddq.add(facetaElegida,valorFaceta);
-        //this.configurarTopFieldFacetCollector();
+        
         DrillSideways ds = new DrillSideways(searcher,fconfig,taxoReader);
-        //DrillSidewaysResult dsresult = ds.search(ddq, collector);
+        
         DrillSidewaysResult dsresult = ds.search(ddq,20);
-        
         resultado = this.obtenerDocumentos(dsresult.hits);
-        
+
         return resultado;
            
     }

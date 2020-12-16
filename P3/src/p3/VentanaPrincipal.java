@@ -7,9 +7,12 @@ package p3;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.LabelAndValue;
 import org.apache.lucene.queryparser.classic.ParseException;
 
 /**
@@ -41,9 +44,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         criterioBusqueda1 = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         botonBuscar = new javax.swing.JButton();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        facetaTamanio = new javax.swing.JCheckBox();
         jLabel4 = new javax.swing.JLabel();
-        jCheckBox2 = new javax.swing.JCheckBox();
+        facetaInstitucion = new javax.swing.JCheckBox();
         jLabel5 = new javax.swing.JLabel();
         selectorCampo1Busqueda2 = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
@@ -54,6 +57,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         busqueda1 = new javax.swing.JRadioButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         resultados = new javax.swing.JTextArea();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        listaFacetas = new javax.swing.JList<>();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         cerrarAplicacion = new javax.swing.JMenuItem();
@@ -80,16 +85,21 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        jCheckBox1.setText("Tamaño de documento");
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+        facetaTamanio.setText("Tamaño de documento");
+        facetaTamanio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
+                facetaTamanioActionPerformed(evt);
             }
         });
 
         jLabel4.setText("Facetas:");
 
-        jCheckBox2.setText("Institución");
+        facetaInstitucion.setText("Institución");
+        facetaInstitucion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                facetaInstitucionActionPerformed(evt);
+            }
+        });
 
         jLabel5.setText("Realice el tipo de búsqueda que desee (1 o 2) y después pulse en \"BUSCAR\". ");
 
@@ -106,6 +116,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         resultados.setColumns(20);
         resultados.setRows(5);
         jScrollPane2.setViewportView(resultados);
+
+        listaFacetas.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = {};
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(listaFacetas);
 
         jMenu1.setText("File");
 
@@ -156,26 +173,26 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jCheckBox1)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jCheckBox2)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(150, 150, 150)
-                                        .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(busqueda1)
                                     .addComponent(busqueda2))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jScrollPane2)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(facetaTamanio)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel1)
+                                    .addComponent(facetaInstitucion)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(jScrollPane2))))))
+                                        .addGap(17, 17, 17)
+                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(40, 40, 40)
+                                        .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -201,23 +218,22 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addGap(13, 13, 13)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
-                        .addComponent(jLabel4)
-                        .addGap(18, 18, 18)
-                        .addComponent(jCheckBox1)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jCheckBox2))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(181, 181, 181)
-                                .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(32, 32, 32))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(32, 32, 32)
-                        .addComponent(jScrollPane2)
-                        .addContainerGap())))
+                        .addComponent(jScrollPane2))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(18, 18, 18)
+                                .addComponent(facetaTamanio)
+                                .addGap(18, 18, 18)
+                                .addComponent(facetaInstitucion)
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 31, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         pack();
@@ -241,38 +257,55 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         
         return resultado;
     }
-            
+    
+    private void imprimir(ArrayList<Document> documento){
+        String cadena = "";
+        for(int i = 0; i < documento.size(); i++){
+                   
+            String [] autores = documento.get(i).getValues("author");
+            String [] paises = documento.get(i).getValues("country");
+            String todosAutores = "";
+            String todosPaises = "";
+
+            for (String autor : autores){
+                todosAutores += (autor + "  ");
+            }
+
+            for (String pais : paises){
+                todosPaises += (pais + "  ");
+            }
+
+            cadena += "Nombre documento: " + documento.get(i).get("namefile") + "\n" + 
+                    "\t - Título documento: " + documento.get(i).get("title") +  "\n" +
+                    "\t - Autores documento: " + todosAutores + "\n" + 
+                    "\t - Paises documento: " + todosPaises + "\n" + 
+                    "\t - Resumen documento: " + documento.get(i).get("brief") +  "\n" +
+                    "\t - Tamaño documento (KB): " + documento.get(i).get("size") + "\n" + 
+                    "################################################################## \n";
+
+        }
+        this.resultados.setText(cadena);
+    }
     private void botonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarActionPerformed
         this.resultados.setText("");
         
         //Búsqueda por campos
-        if(busqueda1.isEnabled() && !busqueda2.isEnabled()){
+        if(busqueda1.isSelected()){
             String criterio = criterioBusqueda1.getText();
             String campo = conversorCampo((String) this.selectorCampoBusqueda1.getSelectedItem());
             
             try {
                 
-                ArrayList<Document> documento = buscador.search(campo, criterio);
-                String cadena = "";
-                for(int i = 0; i < documento.size(); i++){
-                    cadena += "Nombre documento: " + documento.get(i).get("namefile") + "\n" + 
-                            "\t - Autores documento: " + documento.get(i).get("author") + "\n" + 
-                            "\t - Resumen documento: " + documento.get(i).get("brief") +  "\n" +
-                            "\t - Tamaño documento (KB): " + documento.get(i).get("size") + "\n" + 
-                            "################################################################## \n";
-                    System.out.println(cadena);
-                    
-                    this.resultados.setText(cadena);
-                }
+                ArrayList<Document> documentos = buscador.search(campo, criterio);
+                imprimir(documentos);
+                                
             } catch (ParseException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
         
-        }
-        
-        if(busqueda2.isEnabled() && busqueda1.isEnabled()){ //Búsqueda booleana
+        }else if(busqueda2.isSelected()){ //Búsqueda booleana
             String criterio1 = this.criterio1Busqueda2.getText();
             String criterio2 = this.criterio2Busqueda2.getText();
             
@@ -280,39 +313,63 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             String campo2 = conversorCampo((String) this.selectorCampo2Busqueda2.getSelectedItem());
             
             try {
-                System.out.println("ENTRO");
-                System.out.println(campo1 + " criterio: " + criterio1 + " campo2 " + campo2 + " criterio2 " + criterio2 );
-                ArrayList<Document> documento = buscador.booleanSearch(campo1, criterio1, campo2, criterio2);
-                String cadena = "";
-                for(int i = 0; i < documento.size(); i++){
-                    cadena += "Nombre documento: " + documento.get(i).get("namefile") + "\n" + 
-                            "\t - Autores documento: " + documento.get(i).get("author") + "\n" + 
-                            "\t - Resumen documento: " + documento.get(i).get("brief") +  "\n" + 
-                            "\t - Tamaño documento (KB): " + documento.get(i).get("size") + "\n" + 
-                            "################################################################## \n";
-                    System.out.println(cadena);
-                    
-                    this.resultados.setText(cadena);
-                }
+                ArrayList<Document> documentos = buscador.booleanSearch(campo1, criterio1, campo2, criterio2);
+                imprimir(documentos);
+                
             } catch (IOException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-               
+          
         }
+        
         
         
             
     }//GEN-LAST:event_botonBuscarActionPerformed
 
-    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBox1ActionPerformed
+    private void facetaTamanioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_facetaTamanioActionPerformed
+        if(facetaTamanio.isSelected()){
+            try {
+                ArrayList<String> facetas = new ArrayList<>(); 
+                List<FacetResult> tamanios = this.buscador.obtenerFacetaSizeRango();
+                for(FacetResult fr: tamanios){
+                    for(LabelAndValue lv: fr.labelValues){
+                        facetas.add(lv.label + " ("+ lv.value + ")");
+                    }
+                }
+                String listaDeFacetas[] = new String[facetas.size()];
+                listaDeFacetas = facetas.toArray(listaDeFacetas);
+                this.listaFacetas.setListData(listaDeFacetas);
+            } catch (IOException ex) {
+                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_facetaTamanioActionPerformed
 
     private void cerrarAplicacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cerrarAplicacionActionPerformed
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_cerrarAplicacionActionPerformed
+
+    private void facetaInstitucionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_facetaInstitucionActionPerformed
+        if(facetaInstitucion.isSelected()){
+            try {
+                ArrayList<String> facetas = new ArrayList<>(); 
+                FacetResult institution = this.buscador.obtenerFacetaInstitucion();
+                
+                for(LabelAndValue lv: institution.labelValues){
+                    facetas.add(lv.label + " ("+ lv.value + ")");
+                }
+                
+                String listaDeFacetas[] = new String[facetas.size()];
+                listaDeFacetas = facetas.toArray(listaDeFacetas);
+                this.listaFacetas.setListData(listaDeFacetas);
+            } catch (IOException ex) {
+                Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+    }//GEN-LAST:event_facetaInstitucionActionPerformed
 
     /**
      * @param args the command line arguments
@@ -362,8 +419,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField criterio1Busqueda2;
     private javax.swing.JTextField criterio2Busqueda2;
     private javax.swing.JTextField criterioBusqueda1;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
+    private javax.swing.JCheckBox facetaInstitucion;
+    private javax.swing.JCheckBox facetaTamanio;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -372,7 +429,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JList<String> listaFacetas;
     private javax.swing.JTextArea resultados;
     private javax.swing.JComboBox<String> selectorCampo1Busqueda2;
     private javax.swing.JComboBox<String> selectorCampo2Busqueda2;
