@@ -81,7 +81,6 @@ public class Busqueda {
             taxoReader = new DirectoryTaxonomyReader(taxoDir);
             //Establecemos los buscadores
             searcher = new IndexSearcher(reader);
-            facets = new FacetsCollector();
             //Configuramos el índice
             fconfig = new FacetsConfig();
             fconfig.setMultiValued("institution", true);
@@ -100,6 +99,10 @@ public class Busqueda {
         sf.setMissingValue(0);
         orden = new Sort(sf);
         collector = TopFieldCollector.create(orden,20,0);
+    }
+    
+    private void configurarFacetCollector(){
+        facets = new FacetsCollector();
     }
     
      private ArrayList<String> aplicarAnalizadorStringField(String contenido, Analyzer analizador) throws IOException{
@@ -148,6 +151,7 @@ public class Busqueda {
         
         TopDocs resultadoConsulta;
         configurarTopFieldFacetCollector();
+        configurarFacetCollector();
             
             
         Query q1 = getQuery(campo,consulta);
@@ -215,9 +219,9 @@ public class Busqueda {
         }
         
         configurarTopFieldFacetCollector();
+        configurarFacetCollector();
         //resultadoConsulta = searcher.search(query,20);
         FacetsCollector.search(searcher, query, NDOCS, facets);
-        System.out.println("Consulta: " + query);
         searcher.search(query, collector);
         ArrayList<Document> documentos = obtenerDocumentos(collector.topDocs());
         
@@ -231,7 +235,6 @@ public class Busqueda {
         switch(analizador){
             case LOWERCASE: 
                 analyzer = new LowerCaseAnalyzer();
-                //System.out.println("lowercaseanalyzer");
                 break;
             case ENGLISH:
                 analyzer = new EnglishAnalyzer();
@@ -247,10 +250,8 @@ public class Busqueda {
         while(stream.incrementToken()){
             String palabra = ""; 
             palabra += stream.getAttribute(CharTermAttribute.class);
-            //System.out.println(palabra);
             Term aux = new Term(campo,palabra);
             builder.add(new Term(campo,palabra));
-            //System.out.println(" Término añadido: " + aux.toString());
         }
         stream.end();
         stream.close();
@@ -311,10 +312,10 @@ public class Busqueda {
         
         List<FacetResult> resultado;
         LongRange[] ranges = new LongRange[4];
-        ranges[0] = new LongRange("[1-40]  ",1L, true, 40L, true);
-        ranges[1] = new LongRange("[41-80] ",41L, true, 80L, true);
-        ranges[2] = new LongRange("[81-150]  ",81L, true, 150L, true);
-        ranges[3] = new LongRange("[151-50000] ",151L, true, 50000L, true);
+        ranges[0] = new LongRange("[1-40]",1L, true, 40L, true);
+        ranges[1] = new LongRange("[41-80]",41L, true, 80L, true);
+        ranges[2] = new LongRange("[81-150]",81L, true, 150L, true);
+        ranges[3] = new LongRange("[151-50000]",151L, true, 50000L, true);
         
         LongRangeFacetCounts facetas = new LongRangeFacetCounts("size",facets,ranges);
         
@@ -337,6 +338,10 @@ public class Busqueda {
 
         return resultado;
            
+    }
+    
+    public boolean consultaRealizada(){
+        return (query == null)? false:true;
     }
     public void cerrarIndex(){
         try{

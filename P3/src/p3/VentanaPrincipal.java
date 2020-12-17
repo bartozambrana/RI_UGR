@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.LabelAndValue;
@@ -147,36 +148,23 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jLabel5))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(604, 604, 604)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(selectorCampo1Busqueda2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(criterio1Busqueda2, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(selectorCampo2Busqueda2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addComponent(criterioBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGap(37, 37, 37)
-                                    .addComponent(selectorCampoBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(criterio2Busqueda2, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel5)
+                        .addGap(49, 49, 49))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(busqueda1)
-                                    .addComponent(busqueda2))
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addGroup(layout.createSequentialGroup()
+                                            .addGap(17, 17, 17)
+                                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(busqueda2)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
@@ -186,13 +174,24 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                                     .addComponent(facetaTamanio)
                                     .addComponent(jLabel4)
                                     .addComponent(jLabel1)
-                                    .addComponent(facetaInstitucion)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(17, 17, 17)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(40, 40, 40)
-                                        .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                    .addComponent(facetaInstitucion))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(604, 604, 604)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(selectorCampo1Busqueda2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(criterio1Busqueda2, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(selectorCampo2Busqueda2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(criterioBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(criterio2Busqueda2, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(selectorCampoBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -220,19 +219,18 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(32, 32, 32)
-                        .addComponent(jScrollPane2))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 431, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(18, 18, 18)
-                                .addComponent(facetaTamanio)
-                                .addGap(18, 18, 18)
-                                .addComponent(facetaInstitucion)
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 31, Short.MAX_VALUE)))
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addComponent(facetaTamanio)
+                        .addGap(18, 18, 18)
+                        .addComponent(facetaInstitucion)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(botonBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -259,11 +257,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }
     
     private void imprimir(ArrayList<Document> documento){
+        this.resultados.setText("");
         String cadena = "";
         for(int i = 0; i < documento.size(); i++){
                    
             String [] autores = documento.get(i).getValues("author");
             String [] paises = documento.get(i).getValues("country");
+            String [] instituciones = documento.get(i).getValues("institution");
             String todosAutores = "";
             String todosPaises = "";
 
@@ -273,6 +273,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
             for (String pais : paises){
                 todosPaises += (pais + "  ");
+            }
+            
+            for (String institucion : instituciones){
+                todosPaises += (institucion + "  ");
             }
 
             cadena += "Nombre documento: " + documento.get(i).get("namefile") + "\n" + 
@@ -287,43 +291,87 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         this.resultados.setText(cadena);
     }
     private void botonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBuscarActionPerformed
-        this.resultados.setText("");
         
-        //Búsqueda por campos
-        if(busqueda1.isSelected()){
+        //Búsqueda por Facetas.
+        if((facetaTamanio.isSelected() || facetaInstitucion.isSelected()) && !listaFacetas.isSelectionEmpty()){
+            if(!buscador.consultaRealizada()){
+                JOptionPane.showMessageDialog(this, "No ha realizado ninguna consulta" ,"Algo has introducido mal...",  JOptionPane.ERROR_MESSAGE);
+            }else if(facetaTamanio.isSelected() && facetaInstitucion.isSelected()){
+                JOptionPane.showMessageDialog(this, "Se encuentran seleccionadas dos categorías" ,"Algo has introducido mal...",  JOptionPane.ERROR_MESSAGE);
+            }else{
+                
+                String seleccion = listaFacetas.getSelectedValue();
+                String valor = "";
+                String faceta  ="";
+                int valorInf = 0;
+                int valorSup = 0;
+                
+                if(facetaTamanio.isSelected()){
+                    
+                    valor = seleccion.substring(seleccion.indexOf("["), seleccion.indexOf("]") + 1);
+                    String valorInferior = valor.substring(1,valor.indexOf("-"));
+                    valorInf = Integer.parseInt(valorInferior);
+                    String valorSuperior = valor.substring(valor.indexOf("-")+1,valor.indexOf("]"));
+                    valorSup = Integer.parseInt(valorSuperior);
+                    faceta = "size";
+                    
+                }else{
+                    valor = seleccion.substring(0, seleccion.indexOf(" ("));
+                    faceta = "institution";
+                }
+
+                try {
+                    
+                    ArrayList<Document> documentos = new ArrayList<>();
+                    if(this.facetaInstitucion.isSelected())
+                        documentos = buscador.buscarPorFaceta(faceta,valor);
+                    else
+                        for(int i = valorInf; i <= valorSup; i++)
+                            documentos.addAll(buscador.buscarPorFaceta(faceta,Integer.toString(i)));
+
+
+
+                    imprimir(documentos);
+                } catch (IOException ex) {
+                    Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+             
+        }else if(busqueda1.isSelected() && busqueda2.isSelected()){   
+            
+            JOptionPane.showMessageDialog(this, "No se puede seleccionar los dos tipos de consulta" ,"Algo has introducido mal...",  JOptionPane.ERROR_MESSAGE);
+            
+        }else if(busqueda1.isSelected()){
             String criterio = criterioBusqueda1.getText();
             String campo = conversorCampo((String) this.selectorCampoBusqueda1.getSelectedItem());
-            
+
             try {
-                
+
                 ArrayList<Document> documentos = buscador.search(campo, criterio);
                 imprimir(documentos);
-                                
+
             } catch (ParseException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
+
         }else if(busqueda2.isSelected()){ //Búsqueda booleana
             String criterio1 = this.criterio1Busqueda2.getText();
             String criterio2 = this.criterio2Busqueda2.getText();
-            
+
             String campo1 = conversorCampo((String) this.selectorCampo1Busqueda2.getSelectedItem());
             String campo2 = conversorCampo((String) this.selectorCampo2Busqueda2.getSelectedItem());
-            
+
             try {
                 ArrayList<Document> documentos = buscador.booleanSearch(campo1, criterio1, campo2, criterio2);
                 imprimir(documentos);
-                
+
             } catch (IOException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
-          
+
         }
-        
-        
-        
             
     }//GEN-LAST:event_botonBuscarActionPerformed
 
@@ -334,7 +382,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 List<FacetResult> tamanios = this.buscador.obtenerFacetaSizeRango();
                 for(FacetResult fr: tamanios){
                     for(LabelAndValue lv: fr.labelValues){
-                        facetas.add(lv.label + " ("+ lv.value + ")");
+                        facetas.add(lv.label + "("+ lv.value + ")");
                     }
                 }
                 String listaDeFacetas[] = new String[facetas.size()];
@@ -343,7 +391,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
+        }else if(!facetaTamanio.isSelected() && !facetaInstitucion.isSelected())
+            listaFacetas.setListData(new String[0]);
+        
+            
     }//GEN-LAST:event_facetaTamanioActionPerformed
 
     private void cerrarAplicacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cerrarAplicacionActionPerformed
@@ -367,7 +418,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             } catch (IOException ex) {
                 Logger.getLogger(VentanaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
+        }else if(!facetaTamanio.isSelected() && !facetaInstitucion.isSelected())
+            listaFacetas.setListData(new String[0]);
         
     }//GEN-LAST:event_facetaInstitucionActionPerformed
 
