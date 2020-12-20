@@ -25,10 +25,9 @@ public class Indexador {
         ArrayList<Json> documentosJson = new ArrayList<>();
         for(String fichero: dir.list()){
             documentosJson.add(new Json(dir.getPath() + "/" + fichero));
-            
         }
-        Index indice = new Index();
-        indice.indexarDocumentos(documentosJson);
+        Index indice = new Index("CREATE");
+        indice.indexarDocumentos(documentosJson,"CREATE");
         
         
     }

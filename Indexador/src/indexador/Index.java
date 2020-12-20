@@ -1,5 +1,6 @@
 package indexador;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.store.FSDirectory;
 
 
@@ -37,9 +39,11 @@ public class Index {
     private IndexWriter writer;
     private FacetsConfig fconfig;
     private DirectoryTaxonomyWriter taxoWriter;
+    private File gestorIndices;
+    private ArrayList<String> ficherosEliminar;
     
     // Constructor del índice
-    public Index() throws IOException{
+    public Index(String tipo) throws IOException{
         //Analizadores para cada campo
         analyzerPerField.put("author", new LowerCaseAnalyzer());                            //Convierte a minúscula
         analyzerPerField.put("institution", new LowerCaseAnalyzer());//Convierte a minúscula
@@ -49,14 +53,34 @@ public class Index {
         analyzerPerField.put("text", new EnglishAnalyzer());
         
         analyzer = new PerFieldAnalyzerWrapper(new WhitespaceAnalyzer(), analyzerPerField);
-        configurarIndice();
+        
+        configurarIndice(tipo);
         configurarFacetas();
     }
     
-    private void configurarIndice() throws IOException{
+    private void configurarIndice(String tipo) throws IOException{
         FSDirectory dir = FSDirectory.open(Paths.get(indexPath));
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
-        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        if(tipo.equals("CREATE"))
+            config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        else if(tipo.equals("CREATE_OR_APPEND")){
+            gestorIndices = new File(indexPath);
+            String listadoFicheros[] = gestorIndices.list();
+            this.ficherosEliminar = new ArrayList<>();
+            
+            for(String fichero : listadoFicheros){
+                int pos = fichero.indexOf(".si");
+                int pos2 = fichero.indexOf(".cfe");
+                int pos3 = fichero.indexOf(".cfs");
+                if(pos != -1 || pos2 != -1 || pos3 != -1)
+                    ficherosEliminar.add(fichero);
+            }
+            
+            config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        }
+            
+        else
+            System.exit(-1);
         writer = new IndexWriter(dir,config);
     }
     
@@ -71,9 +95,15 @@ public class Index {
     
     private void closeIndex() throws IOException{
         try{
-            writer.commit();
+            
+            writer.commit();   
             writer.close();
             taxoWriter.close();
+            /*if(gestorIndices != null)
+                for(String fichero : ficherosEliminar){
+                    gestorIndices  = new File(indexPath + fichero);
+                    gestorIndices.delete();
+                }*/
         }catch(IOException e){
             System.out.println("ERROR IN CLOSE INDEX: " + e);
         }
@@ -98,7 +128,7 @@ public class Index {
         
     }
     
-    public void indexarDocumentos(ArrayList<Json> documentos) throws IOException{
+    public void indexarDocumentos(ArrayList<Json> documentos, String tipo) throws IOException{
         for(Json json : documentos){    
             Document doc = new Document();
             
@@ -145,7 +175,23 @@ public class Index {
 
             
             //writer.addDocument(doc);
+            
             writer.addDocument(fconfig.build(taxoWriter,doc));
+            if(tipo.equals("CREATE_OR_APPEND")){
+                writer.updateDocument(new Term(json.getBrief()),doc);
+                writer.updateDocument(new Term(json.getText()), doc);
+                writer.updateDocument(new Term(json.getSizeFile().toString()), doc);
+                writer.updateDocument(new Term(json.getTitle()), doc);
+                writer.updateDocument(new Term(json.getNameFile()), doc);
+                for(int j = 0 ; j <  json.getAuthors().size(); j++){
+                    writer.updateDocument(new Term(json.getAuthors().get(j).getKey()), doc);
+                    writer.updateDocument(new Term(json.getAuthors().get(j).getValue()), doc);
+                }
+                for(int i = 0; i < paises.size(); i++){
+                    writer.updateDocument(new Term(paises.get(i)), doc);
+                }
+            }
+            
         }
         
         closeIndex();

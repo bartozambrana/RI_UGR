@@ -62,7 +62,6 @@ public class Json {
         JSONArray resumenes = (JSONArray) this.jsonObject.get("abstract");
         // Obtenemos los autores.
         JSONArray autores = (JSONArray) metadatos.get("authors");
-        
         // Obtenemos el contenido
         JSONArray contenido = (JSONArray) this.jsonObject.get("body_text");
         

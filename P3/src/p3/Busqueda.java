@@ -41,9 +41,10 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopFieldCollector;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import com.carrotsearch.hppc.IntIntScatterMap;
+import com.carrotsearch.hppc.cursors.IntIntCursor;
 
 /**
  * @author Bartolomé Zambrana Pérez y Alonso Bueno Herrero.
@@ -51,22 +52,21 @@ import org.apache.lucene.store.FSDirectory;
 public class Busqueda {
     
     //Variables
-    private final String indexPath;
-    private final String facetPath;
-    private IndexSearcher searcher;
-    private QueryParser parser;
-    private Query query;
-    //private ArrayList<Analyzer> analyzers;
-    private IndexReader reader;
-    private TaxonomyReader taxoReader;
-    private FacetsCollector  facets;
-    private FacetsConfig fconfig;
-    private final Integer NDOCS = 20;
-    private TopFieldCollector collector;
-    private Sort orden;
+    private final String indexPath;         //path indices
+    private final String facetPath;         //path facetas
+    private IndexSearcher searcher;         //busador indices
+    private QueryParser parser;             //Parsear Queries
+    private Query query;                    //Establecer las queries
+    private IndexReader reader;             //Lector de índices
+    private TaxonomyReader taxoReader;      //Lectura de facetas
+    private FacetsCollector  facets;        //Colector de facetas.
+    private FacetsConfig fconfig;           //Configuración de facetas
+    private final Integer NDOCS = 20;       //Documentos a optener
+    private TopFieldCollector collector;    //Colector para los primeros documentos
+    private Sort orden;                     //Ordenar salidas.
     
     
-    
+    //Constructor de la clase.(
     public Busqueda() throws IOException {
         this.indexPath = "./indices/";
         this.facetPath = "./facetas/";
@@ -93,6 +93,7 @@ public class Busqueda {
         
     }
     
+    //Configurar la recogida de los primeros documentos
     private void configurarTopFieldFacetCollector(){
         //Configuración orden
         SortField sf = new SortField("size",SortField.Type.INT, true);
@@ -101,11 +102,13 @@ public class Busqueda {
         collector = TopFieldCollector.create(orden,20,0);
     }
     
+    //Configurar la colección de las facetas.
     private void configurarFacetCollector(){
         facets = new FacetsCollector();
     }
     
-     private ArrayList<String> aplicarAnalizadorStringField(String contenido, Analyzer analizador) throws IOException{
+    //Analizador para aplicar cuando se obtenga el campo país ya que se encuentra indexado como un StringField
+    private ArrayList<String> aplicarAnalizadorStringField(String contenido, Analyzer analizador) throws IOException{
         ArrayList<String> paises = new ArrayList<>();      
             
         TokenStream stream = analizador.tokenStream(null, contenido);
@@ -122,7 +125,7 @@ public class Busqueda {
          
     }
     
-    
+    //Método encargado de la búsqueda simple.
     public ArrayList<Document> search(String campo, String consulta) throws ParseException, IOException{
         ArrayList<Document> documentos = new ArrayList<>();
         
@@ -145,13 +148,12 @@ public class Busqueda {
     }
     
     
-   
+    //Método encargado de la búsqueda booleana.
     public ArrayList<Document> booleanSearch(String campo, String consulta, String campo2, String consulta2) throws IOException{
         ArrayList<Document> documentos;
         
         TopDocs resultadoConsulta;
-        configurarTopFieldFacetCollector();
-        configurarFacetCollector();
+        
             
             
         Query q1 = getQuery(campo,consulta);
@@ -169,6 +171,11 @@ public class Busqueda {
         //Almacenamos el valor en query para el drilldown
         query = bq;
         
+        //Configuración
+        configurarTopFieldFacetCollector();
+        configurarFacetCollector();
+        
+        //Búsqueda.
         FacetsCollector.search(searcher, bq,NDOCS, facets);
         searcher.search(query, collector);
         documentos = obtenerDocumentos(collector.topDocs());
@@ -218,6 +225,7 @@ public class Busqueda {
                        
         }
         
+        //Configuración
         configurarTopFieldFacetCollector();
         configurarFacetCollector();
         //resultadoConsulta = searcher.search(query,20);
@@ -273,8 +281,6 @@ public class Busqueda {
     }
     
     private ArrayList<Document> obtenerNDocumentos(TopDocs resultadoConsulta, int n) throws IOException{
-        
-        
         ArrayList<Document> documentos = new ArrayList<>();
         ScoreDoc[] hits = resultadoConsulta.scoreDocs;
         
@@ -301,9 +307,9 @@ public class Busqueda {
     
     public FacetResult obtenerFacetaInstitucion() throws IOException{
         FacetResult resultado;
-              
+        
         Facets facetas = new FastTaxonomyFacetCounts(taxoReader,fconfig,facets);
-        resultado = facetas.getTopChildren(20, "institution");
+        resultado = facetas.getTopChildren(this.NDOCS, "institution");
         
         return resultado;
     }
@@ -319,7 +325,7 @@ public class Busqueda {
         
         LongRangeFacetCounts facetas = new LongRangeFacetCounts("size",facets,ranges);
         
-        resultado = facetas.getAllDims(20);
+        resultado = facetas.getAllDims(this.NDOCS);
         return resultado;
     }
     
@@ -333,7 +339,7 @@ public class Busqueda {
         
         DrillSideways ds = new DrillSideways(searcher,fconfig,taxoReader);
         
-        DrillSidewaysResult dsresult = ds.search(ddq,20);
+        DrillSidewaysResult dsresult = ds.search(ddq,this.NDOCS);
         resultado = this.obtenerDocumentos(dsresult.hits);
 
         return resultado;
