@@ -16,18 +16,33 @@ import org.json.simple.parser.ParseException;
  * @author mipc
  */
 public class Indexador {
-
+    private static String mensaje  ="args[0] ruta al directorio que contiene los documentos.\n" +
+                                    "args[1] == APPEND añade al índice los documentos del directorio args[0].\n" +
+                                    "args[1] == CREATE crea un índice desde cero." ;
     /**
-     * @param args the command line arguments
+     * @param args the command line arguments 
+     * 
+     * args[0] ruta al directorio que contiene los documentos.
+     * args[1] si se introduce APPEND añade al índice los documentos del directorio args[0].
+     *         si se introduce CREATE crea un índice desde cero.
      */
     public static void main(String[] args) throws IOException, FileNotFoundException, ParseException {
-        File dir = new File("./documentos/document_parses/documents_json/");
-        ArrayList<Json> documentosJson = new ArrayList<>();
-        for(String fichero: dir.list()){
-            documentosJson.add(new Json(dir.getPath() + "/" + fichero));
+        
+        if(args.length != 2){
+            System.err.println(mensaje);
+            System.exit(-2);
         }
-        Index indice = new Index("CREATE");
-        indice.indexarDocumentos(documentosJson,"CREATE");
+            
+        File dir = new File(args[0]);
+        ArrayList<Json> documentosJson = new ArrayList<>();
+        Index indice = new Index(args[1]);
+        for(String fichero: dir.list()){
+            indice.indexarDocumentos(new Json(dir.getPath() + "/" + fichero));
+        }
+        
+        indice.closeIndex();
+        
+        
         
         
     }
