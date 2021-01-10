@@ -321,7 +321,7 @@ public class Busqueda {
         ranges[0] = new LongRange("[1-40]",1L, true, 40L, true);
         ranges[1] = new LongRange("[41-80]",41L, true, 80L, true);
         ranges[2] = new LongRange("[81-150]",81L, true, 150L, true);
-        ranges[3] = new LongRange("[151-50000]",151L, true, 50000L, true);
+        ranges[3] = new LongRange("[151-5000]",151L, true, 5000L, true);
         
         LongRangeFacetCounts facetas = new LongRangeFacetCounts("size",facets,ranges);
         
